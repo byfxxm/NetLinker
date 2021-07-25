@@ -6,7 +6,7 @@
 
 int main()
 {
-
+	WSAStartup(1, &m_WsaData);
 
     
 	return 0;
