@@ -3,6 +3,7 @@
 
 NetLinerImp::NetLinerImp()
 {
+	WSADATA _WsaData;
 	WSAStartup(1, &m_WsaData);
 }
 
