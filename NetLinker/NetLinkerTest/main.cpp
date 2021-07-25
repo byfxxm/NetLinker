@@ -4,11 +4,13 @@
 #include <iostream>
 #include <winsock.h>
 
+#pragma comment(lib, "ws2_32.lib")
+
 int main()
 {
+	WSADATA _WsaData;
+	WSAStartup(1, &_WsaData);
 
-
-    
 	return 0;
 }
 

@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetLinker", "NetLinker\NetLinker.vcxproj", "{7CB1C670-BA19-4695-97C2-AC4A0E2B2430}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetLinkerTest", "NetLinkerTest\NetLinkerTest.vcxproj", "{6A23C87D-7F50-484B-8754-2BAB2E878ACA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7CB1C670-BA19-4695-97C2-AC4A0E2B2430} = {7CB1C670-BA19-4695-97C2-AC4A0E2B2430}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
