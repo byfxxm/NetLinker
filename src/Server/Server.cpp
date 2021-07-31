@@ -1,7 +1,4 @@
-﻿// NetLinkerTest.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
-//
-
-#include <iostream>
+﻿#include <iostream>
 #include <winsock.h>
 #include <stdio.h>
 
@@ -9,7 +6,7 @@
 
 int main()
 {
-	DWORD _nVersionRequested = MAKEWORD(2, 1);
+	WORD _nVersionRequested = MAKEWORD(2, 1);
 	WSADATA _WsaData;
 	int _startup = WSAStartup(_nVersionRequested, &_WsaData);
 
