@@ -10,18 +10,11 @@
 int main(int argc, char *argv[])
 {
 	WSADATA wsd;
-	SOCKET sClient;
+	SOCKET client;
 	char Buffer[BUFSIZE];
 	int ret;
 	struct sockaddr_in server;
-	unsigned short port;
 	struct hostent *host = NULL;
-
-	if (argc < 3) {
-		printf("Usage:%s IP Port\n", argv[0]);
-		return -1;
-	}
-
 
 	/*加载Winsock DLL*/
 	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0) {
@@ -30,8 +23,8 @@ int main(int argc, char *argv[])
 	}
 
 	/*创建Socket*/
-	sClient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (sClient == INVALID_SOCKET) {
+	client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (client == INVALID_SOCKET) {
 		printf("socket() 失败: %d\n", WSAGetLastError());
 		return 1;
 	}
@@ -53,7 +46,7 @@ int main(int argc, char *argv[])
 			host->h_length);
 	}
 	/*与服务器建立连接*/
-	if (connect(sClient, (struct sockaddr*)&server,
+	if (connect(client, (struct sockaddr*)&server,
 		sizeof(server)) == SOCKET_ERROR) {
 		printf("connect() 失败: %d\n", WSAGetLastError());
 		return 1;
@@ -65,7 +58,7 @@ int main(int argc, char *argv[])
 		//从标准输入读取要发送的数据
 		gets_s(Buffer,BUFSIZE);
 		//向服务器发送消息
-		ret = send(sClient, Buffer, strlen(Buffer), 0);
+		ret = send(client, Buffer, strlen(Buffer), 0);
 		if (ret == 0) {
 			break;
 		}
@@ -75,7 +68,7 @@ int main(int argc, char *argv[])
 		}
 		printf("Send %d bytes\n", ret);
 		//接收从服务器来的消息
-		ret = recv(sClient, Buffer, BUFSIZE, 0);
+		ret = recv(client, Buffer, BUFSIZE, 0);
 		if (ret == 0) {
 			break;
 		}
@@ -88,7 +81,7 @@ int main(int argc, char *argv[])
 
 	}
 	//用完了，关闭socket句柄(文件描述符)
-	closesocket(sClient);
+	closesocket(client);
 	WSACleanup();    //清理
 	return 0;
 }
