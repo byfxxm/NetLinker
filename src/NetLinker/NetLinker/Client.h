@@ -1,5 +1,6 @@
 #pragma once
 
+struct Pack;
 class CClient
 {
 public:

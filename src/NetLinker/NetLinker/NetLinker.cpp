@@ -10,7 +10,7 @@ void* Server_Create()
 
 void Server_Delete(void* p_)
 {
-	delete p_;
+	delete (CServer*)p_;
 }
 
 void Server_Listen(void* pServer_, int nPort_)
@@ -25,7 +25,7 @@ void* Client_Create()
 
 void Client_Delete(void* p_)
 {
-	delete p_;
+	delete (CClient*)p_;
 }
 
 bool Client_Connect(void* pClient_, const char* pAddr_, int nPort_)

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Client.h"
+#include "Protocol.h"
 
 CClient::CClient()
 {
@@ -21,35 +22,28 @@ bool CClient::Connect(const char* pAddr_, int nPort_)
 	_clientSockAddr.sin_family = AF_INET;
 	_clientSockAddr.sin_port = htons(nPort_);
 
-	if (connect(m_Socket, (SOCKADDR*)&_clientSockAddr, sizeof(SOCKADDR)))
+	if (SOCKET_ERROR == connect(m_Socket, (SOCKADDR*)&_clientSockAddr, sizeof(SOCKADDR)))
 		return false;
 
-	return true;;
+	return true;
 }
 
 bool CClient::SendMsg(const char* pMsg_)
 {
-	//char _msg[2000] = { 0 };
-	//Packet* _pPack = new(_msg) Packet();
-	//_pPack->nDataLen = strlen(pMsg_) + 1;
-	//memcpy(_pPack->Data, pMsg_, _pPack->nDataLen);
-
-	if (SOCKET_ERROR == send(m_Socket, pMsg_, strlen(pMsg_) + 1, 0))
-		return false;
-
-	char _beat;
-	recv(m_Socket, &_beat, 1, 0);
-	return true;;
+	return SendBytes(pMsg_, strlen(pMsg_) + 1);
 }
 
 bool CClient::SendBytes(const char* pBytes_, int nLen_)
 {
-	if (SOCKET_ERROR == send(m_Socket, pBytes_, nLen_, 0))
-		return false;
+	auto _pMem = new char[PACKHEAD + nLen_];
+	auto _pPack = new(_pMem) Pack(nLen_);
+	memcpy(_pPack->Data, pBytes_, nLen_);
 
-	char _beat;
-	recv(m_Socket, &_beat, 1, 0);
-	return true;
+	int _count = send(m_Socket, _pMem, PACKHEAD + nLen_, 0);
+	bool _bRet = (SOCKET_ERROR != _count);
+	delete[] _pMem;
+
+	return _bRet;
 }
 
 bool CClient::SendFile(const char* pFile_)
@@ -63,9 +57,9 @@ bool CClient::SendFile(const char* pFile_)
 	strcpy_s(_file, pFile_);
 	char* _name = strrchr(_file, '\\');
 	_name++;
-	
-	char _str[MAX_PATH] = MASK;
-	strcat_s(_str, _name);
+
+	char _str[100] = { 0 };
+	sprintf_s(_str, MASK"%s", _name);
 	SendMsg(_str);
 
 	char _buff[BUFFER_SIZE] = { 0 };
@@ -78,7 +72,7 @@ bool CClient::SendFile(const char* pFile_)
 
 		if (_fin.eof())
 		{
-			SendMsg(MASK);
+			SendBytes(MASK, MASK_SIZE);
 			break;
 		}
 	}

@@ -2,6 +2,7 @@
 
 using std::thread;
 using std::list;
+struct Pack;
 
 class CServer
 {
@@ -10,6 +11,7 @@ public:
 	~CServer();
 
 	void Listen(int);
+	Pack* RecvBytes(SOCKET);
 
 private:
 	SOCKET m_Socket;

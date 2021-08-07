@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Server.h"
+#include "Protocol.h"
 
 using std::cout;
 using std::endl;
@@ -17,9 +18,30 @@ CServer::CServer()
 
 CServer::~CServer()
 {
-	m_thdListener.join();
 	closesocket(m_Socket);
+	m_thdListener.join();
 	WSACleanup();
+}
+
+Pack* CServer::RecvBytes(SOCKET Connect_)
+{
+	int _count = 0;
+
+	char _head[PACKHEAD] = { 0 };
+	_count = recv(Connect_, _head, PACKHEAD, 0);
+	if (SOCKET_ERROR == _count)
+		return nullptr;
+
+	int _length = *(int*)_head;
+	auto _pack = new(new char[PACKHEAD + _length])Pack(_length);
+	_count = recv(Connect_, _pack->Data, _pack->nDataLen, 0);
+	if (SOCKET_ERROR == _count)
+	{
+		delete _pack;
+		return nullptr;
+	}
+
+	return _pack;
 }
 
 void CServer::Listen(int nPort_)
@@ -39,23 +61,26 @@ void CServer::Listen(int nPort_)
 			SOCKADDR_IN _clientSocket;
 			int _nAddrLen = sizeof(SOCKADDR);
 			SOCKET _serConn = accept(m_Socket, (SOCKADDR*)&_clientSocket, &_nAddrLen);
+			if (_serConn == INVALID_SOCKET)
+				return;
 
-			thread _connect([=]()
+			m_listClient.push_back(_serConn);
+
+			thread _connect([this, _serConn]()
 			{
 				while (true)
 				{
-					char _buff[BUFFER_SIZE] = { 0 };
-					int _count = 0;
-					_count = recv(_serConn, _buff, sizeof(_buff), 0);
-					send(_serConn, "%", 1, 0);
-
-					if (SOCKET_ERROR == _count)
+					Pack* _pPack = nullptr;
+					delete _pPack;
+					_pPack = RecvBytes(_serConn);
+					if (_pPack == nullptr)
 					{
 						closesocket(_serConn);
+						m_listClient.erase(std::find(m_listClient.begin(), m_listClient.end(), _serConn));
 						return;
 					}
 
-					if (strncmp(_buff, MASK, MASK_SIZE) == 0)
+					if (memcmp(_pPack->Data, MASK, MASK_SIZE) == 0)
 					{
 						if (m_FileOut.is_open())
 						{
@@ -64,20 +89,20 @@ void CServer::Listen(int nPort_)
 							continue;
 						}
 
-						cout << "receive file: " << &_buff[MASK_SIZE] << endl;
+						cout << "receive file: " << &_pPack->Data[MASK_SIZE] << endl;
 						std::string _filePath(m_szRecFilePath);
-						_filePath += &_buff[MASK_SIZE];
-						m_FileOut.open(_filePath, std::ios::binary);
+						_filePath += &_pPack->Data[MASK_SIZE];
+						m_FileOut.open(_filePath, std::ios::binary | std::ios::out);
 						continue;
 					}
 
 					if (m_FileOut.is_open())
 					{
-						m_FileOut.write(_buff, _count);
+						m_FileOut.write(_pPack->Data, _pPack->nDataLen);
 						continue;
 					}
 
-					cout << "receive msg: " << _buff << endl;
+					cout << "receive msg: " << _pPack->Data << endl;
 				}
 			});
 
