@@ -13,7 +13,8 @@ using namespace std;
 
 int main()
 {
-	void* _pServer = Server_Create(3000);
+	void* _pServer = Server_Create();
+	Server_Listen(_pServer, 3000);
 
 	thread _thds[1];
 	for (auto& _th : _thds)
@@ -23,17 +24,7 @@ int main()
 			void* _pClient = Client_Create();
 			Client_Connect(_pClient, "127.0.0.1", 3000);
 
-			while (true)
-			{
-				//string _s;
-				//cin >> _s;
-				//if (_s == "quit")
-				//	break;
-				//Client_SendFile(_pClient, "D:\\depends22_x86.zip");
-				Client_SendFile(_pClient, "D:\\depends22_x86.zip");
-				getchar();
-				//Client_SendMsg(_pClient, _s.c_str());
-			}
+			Client_SendFile(_pClient, "G:\\Download\\BigFoot_WOW_5.3.0.1.exe");
 			Client_Delete(_pClient);
 		});
 

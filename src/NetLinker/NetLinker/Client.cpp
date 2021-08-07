@@ -29,41 +29,56 @@ bool CClient::Connect(const char* pAddr_, int nPort_)
 
 bool CClient::SendMsg(const char* pMsg_)
 {
-	if (send(m_Socket, pMsg_, strlen(pMsg_) + 1, 0))
+	//char _msg[2000] = { 0 };
+	//Packet* _pPack = new(_msg) Packet();
+	//_pPack->nDataLen = strlen(pMsg_) + 1;
+	//memcpy(_pPack->Data, pMsg_, _pPack->nDataLen);
+
+	if (SOCKET_ERROR == send(m_Socket, pMsg_, strlen(pMsg_) + 1, 0))
 		return false;
 
+	char _beat;
+	recv(m_Socket, &_beat, 1, 0);
 	return true;;
 }
 
-void CClient::SendBytes(const char* pBytes_, int nLen_)
+bool CClient::SendBytes(const char* pBytes_, int nLen_)
 {
-	while (!send(m_Socket, pBytes_, nLen_, 0))
-		std::this_thread::yield();
+	if (SOCKET_ERROR == send(m_Socket, pBytes_, nLen_, 0))
+		return false;
+
+	char _beat;
+	recv(m_Socket, &_beat, 1, 0);
+	return true;
 }
 
 bool CClient::SendFile(const char* pFile_)
 {
-	std::ifstream _fin(pFile_, std::ios::binary | std::ios::out);
+	std::ifstream _fin(pFile_, std::ios::binary);
 
 	if (!_fin)
 		return false;
 
-	char _name[50];
-	char _ext[10];
-	char _file[60];
-	_splitpath_s(pFile_, nullptr, 0, nullptr, 0, _name, sizeof(_name), _ext, sizeof(_ext));
-	sprintf_s(_file, "%%%%%s%s", _name, _ext);
-	SendMsg(_file);
+	char _file[MAX_PATH];
+	strcpy_s(_file, pFile_);
+	char* _name = strrchr(_file, '\\');
+	_name++;
+	
+	char _str[MAX_PATH] = MASK;
+	strcat_s(_str, _name);
+	SendMsg(_str);
 
-	char _buff[1000] = { 0 };
+	char _buff[BUFFER_SIZE] = { 0 };
+	int _sum = 0;
 	while (true)
 	{
 		memset(_buff, 0, sizeof(_buff));
 		_fin.read(_buff, sizeof(_buff));
-		SendBytes(_buff, sizeof(_buff));
+		SendBytes(_buff, (int)_fin.gcount());
+
 		if (_fin.eof())
 		{
-			SendBytes("%%", 2);
+			SendMsg(MASK);
 			break;
 		}
 	}

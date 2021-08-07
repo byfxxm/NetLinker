@@ -9,3 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+
+#define BUFFER_SIZE 1024
+#define MASK "#####"
+#define MASK_SIZE strlen(MASK)

@@ -4,20 +4,15 @@
 using std::cout;
 using std::endl;
 
-CServer::CServer(int nPort_)
+CServer::CServer()
 {
+	GetModuleFileName(NULL, m_szRecFilePath, sizeof(m_szRecFilePath));
+	*(strrchr(m_szRecFilePath, '\\') + 1) = '\0';
+
 	WSADATA _wsaData;
 	WSAStartup(MAKEWORD(2, 2), &_wsaData);
 
 	m_Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	SOCKADDR_IN _addr;
-	_addr.sin_family = AF_INET;
-	_addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-	_addr.sin_port = htons(nPort_);
-
-	bind(m_Socket, (SOCKADDR*)&_addr, sizeof(SOCKADDR));
-
-	Listen();
 }
 
 CServer::~CServer()
@@ -27,8 +22,14 @@ CServer::~CServer()
 	WSACleanup();
 }
 
-void CServer::Listen()
+void CServer::Listen(int nPort_)
 {
+	SOCKADDR_IN _addr;
+	_addr.sin_family = AF_INET;
+	_addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+	_addr.sin_port = htons(nPort_);
+
+	bind(m_Socket, (SOCKADDR*)&_addr, sizeof(SOCKADDR));
 	listen(m_Socket, 10);
 
 	thread _listen([this]()
@@ -43,41 +44,40 @@ void CServer::Listen()
 			{
 				while (true)
 				{
-					//char _buff[100] = { 0 };
-					//inet_ntop(AF_INET, &_clientSocket.sin_addr, _buff, sizeof(_buff));
+					char _buff[BUFFER_SIZE] = { 0 };
+					int _count = 0;
+					_count = recv(_serConn, _buff, sizeof(_buff), 0);
+					send(_serConn, "%", 1, 0);
 
-					char _receiveBuf[1000] = { 0 };
-					memset(_receiveBuf, 0, sizeof(_receiveBuf));
-					if (SOCKET_ERROR == recv(_serConn, _receiveBuf, sizeof(_receiveBuf), 0))
+					if (SOCKET_ERROR == _count)
 					{
 						closesocket(_serConn);
 						return;
 					}
 
-					if (strncmp(_receiveBuf, "%%", 2) == 0)
+					if (strncmp(_buff, MASK, MASK_SIZE) == 0)
 					{
 						if (m_FileOut.is_open())
 						{
 							m_FileOut.close();
+							cout << "receive file finished" << endl;
 							continue;
 						}
 
-						cout << "receive file " << &_receiveBuf[2] << ": " << endl;
-
-						//GetModuleFileName()
-						std::string _filePath("F:\\");
-						_filePath += &_receiveBuf[2];
-						m_FileOut.open(_filePath);
+						cout << "receive file: " << &_buff[MASK_SIZE] << endl;
+						std::string _filePath(m_szRecFilePath);
+						_filePath += &_buff[MASK_SIZE];
+						m_FileOut.open(_filePath, std::ios::binary);
 						continue;
 					}
 
 					if (m_FileOut.is_open())
 					{
-						m_FileOut.write(_receiveBuf, sizeof(_receiveBuf));
+						m_FileOut.write(_buff, _count);
 						continue;
 					}
 
-					cout << "receive msg: " << _receiveBuf << endl;
+					cout << "receive msg: " << _buff << endl;
 				}
 			});
 
@@ -86,27 +86,4 @@ void CServer::Listen()
 	});
 	
 	m_thdListener.swap(_listen);
-}
-
-bool CServer::SendMsg(const char* pMsg_)
-{
-	if (m_listClient.empty())
-		return false;
-
-	for (auto& _client : m_listClient)
-	{
-		send(_client, pMsg_, strlen(pMsg_) + 1, 0);
-	}
-
-	return true;;
-}
-
-bool CServer::ReceiveMsg(char*, int)
-{
-	//if (SOCKET_ERROR == recv(_serConn, _receiveBuf, sizeof(_receiveBuf), 0))
-	//{
-	//	closesocket(_serConn);
-	//}
-
-	return true;
 }

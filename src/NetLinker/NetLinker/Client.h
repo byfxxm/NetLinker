@@ -9,8 +9,8 @@ public:
 	bool Connect(const char*, int);
 	bool SendMsg(const char*);
 	bool SendFile(const char*);
+	bool SendBytes(const char*, int);
 
 private:
-	void SendBytes(const char*, int);
 	SOCKET m_Socket;
 };

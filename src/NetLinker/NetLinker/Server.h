@@ -6,16 +6,15 @@ using std::list;
 class CServer
 {
 public:
-	CServer(int);
+	CServer();
 	~CServer();
 
-	bool SendMsg(const char*);
-	bool ReceiveMsg(char*, int);
+	void Listen(int);
 
 private:
-	void Listen();
 	SOCKET m_Socket;
 	list<SOCKET> m_listClient;
 	thread m_thdListener;
 	std::ofstream m_FileOut;
+	char m_szRecFilePath[MAX_PATH];
 };

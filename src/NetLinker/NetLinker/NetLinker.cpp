@@ -3,9 +3,9 @@
 #include "Server.h"
 #include "Client.h"
 
-void* Server_Create(int nPort_)
+void* Server_Create()
 {
-	return new CServer(nPort_);
+	return new CServer();
 }
 
 void Server_Delete(void* p_)
@@ -13,14 +13,9 @@ void Server_Delete(void* p_)
 	delete p_;
 }
 
-bool Server_SendMsg(void* pServer_, const char* pMsg_)
+void Server_Listen(void* pServer_, int nPort_)
 {
-	return ((CServer*)pServer_)->SendMsg(pMsg_);
-}
-
-bool Server_ReceiveMsg(void* pServer_, char* pMsg_, int nLen_)
-{
-	return ((CServer*)pServer_)->ReceiveMsg(pMsg_, nLen_);
+	return ((CServer*)pServer_)->Listen(nPort_);
 }
 
 void* Client_Create()
