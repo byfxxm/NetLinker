@@ -1,87 +1,70 @@
-﻿//#include <winsock2.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <ws2tcpip.h>
+﻿#include <WINSOCK2.H>
 
-#pragma comment(lib , "ws2_32.lib")
+#include <iostream>
+using std::cout;
+using std::cin;
+using std::endl;
+#include <string>
+using std::string;
+#include <conio.h>
 
-#define BUFSIZE 4096 /*缓冲区大小*/
+#pragma comment(lib,"ws2_32.lib")
 
-int main(int argc, char *argv[])
+void main()
 {
-	WSADATA wsd;
-	SOCKET client;
-	char Buffer[BUFSIZE];
-	int ret;
-	struct sockaddr_in server;
-	struct hostent *host = NULL;
-
-	/*加载Winsock DLL*/
-	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0) {
-		printf("Winsock    初始化失败!\n");
-		return 1;
+	int err;
+	WORD versionRequired;
+	WSADATA wsaData;                            //包含系统所支持的WinStock版本信息
+	versionRequired = MAKEWORD(1, 1);           //初始化版本1.1
+	//注册WinStock，返回状态
+	err = WSAStartup(versionRequired, &wsaData);//协议库的版本信息
+	if (!err)                                   //返回结果为0表示初始化失败
+	{
+		cout << LPSTR("客户端套接字已经打开!\n");
 	}
-
-	/*创建Socket*/
-	client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (client == INVALID_SOCKET) {
-		printf("socket() 失败: %d\n", WSAGetLastError());
-		return 1;
+	else
+	{
+		//调用WSAGetLastError()查看错误信息
+		cout << ("客户端套接字打开失败：") << WSAGetLastError() << endl;
+		return;//结束
 	}
-	/*指定服务器地址*/
-	server.sin_family = AF_INET;
-	server.sin_port = htons(1234);
-	char buff[100];
-	server.sin_addr.s_addr = inet_pton(AF_INET, "127.0.0.1", buff);
+	/*
+	创建套接字：
+	流式套接字：   SOCK_STREAM , IPPROTO_TCP
+	数据报套接字: SOCK_DGRAM  , IPPROTO_UDP
+	*/
+	SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);    //创建流式套接字
+	SOCKADDR_IN clientsock_in;                                          //专门针对Internet 通信域的Winsock地址结构
+	clientsock_in.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");        //通过inet_addr结构指定套接字的主机IP地址 
+	clientsock_in.sin_family = AF_INET;                                 //指定协议家族:AF_INET
+	clientsock_in.sin_port = htons(3000);                               //指定将要分配给套接字的传输层端口号：6000
 
-	if (server.sin_addr.s_addr == INADDR_NONE) {
-		PADDRINFOA pAddrInfo;
-		getaddrinfo("127.0.0.1", "1234", nullptr, &pAddrInfo);    //输入的地址可能是域名等
-		if (host == NULL) {
-			printf("无法解析服务端地址: %s\n", argv[1]);
-			return 1;
-		}
-		CopyMemory(&server.sin_addr,
-			host->h_addr_list[0],
-			host->h_length);
+	int fail = connect(clientSocket, (SOCKADDR*)&clientsock_in, sizeof(SOCKADDR));//开始连接
+	if (fail) {
+		cout << "与服务端连接失败！程序将退出..." << endl;
+		_getch();
+		return;
 	}
-	/*与服务器建立连接*/
-	if (connect(client, (struct sockaddr*)&server,
-		sizeof(server)) == SOCKET_ERROR) {
-		printf("connect() 失败: %d\n", WSAGetLastError());
-		return 1;
-	}
-
-	/*发送、接收消息*/
-
-	for (;;) {
-		//从标准输入读取要发送的数据
-		gets_s(Buffer,BUFSIZE);
-		//向服务器发送消息
-		ret = send(client, Buffer, strlen(Buffer), 0);
-		if (ret == 0) {
+	string s;
+	while (cin >> s) {
+		char receiveBuf[100];
+		//接收数据
+		recv(clientSocket, receiveBuf, 101, 0);
+		cout << receiveBuf << endl;
+		//发送数据
+		send(clientSocket, s.c_str(), s.length() + 1, 0);
+		if (s == "quit") {
 			break;
 		}
-		else if (ret == SOCKET_ERROR) {
-			printf("send() 失败: %d\n", WSAGetLastError());
-			break;
-		}
-		printf("Send %d bytes\n", ret);
-		//接收从服务器来的消息
-		ret = recv(client, Buffer, BUFSIZE, 0);
-		if (ret == 0) {
-			break;
-		}
-		else if (ret == SOCKET_ERROR) {
-			printf("recv() 失败: %d\n", WSAGetLastError());
-			break;
-		}
-		Buffer[ret] = '\0';
-		printf("Recv %d bytes:\n\t%s\n", ret, Buffer);
-
 	}
-	//用完了，关闭socket句柄(文件描述符)
-	closesocket(client);
-	WSACleanup();    //清理
-	return 0;
+	closesocket(clientSocket);
+	//关闭套接字
+	if (WSACleanup() == SOCKET_ERROR) {
+		cout << "套接字关闭失败：" << WSAGetLastError() << endl;
+	}
+	else {
+		cout << "套接字成功关闭." << endl;
+	}
+	_getch();
+	return;
 }
