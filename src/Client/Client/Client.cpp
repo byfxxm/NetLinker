@@ -18,8 +18,8 @@ int main()
 	cout << "client is opened" << endl;
 
 	SOCKET _clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	SOCKADDR_IN _clientSockAddr;
 
+	SOCKADDR_IN _clientSockAddr;
 	inet_pton(AF_INET, "127.0.0.1", &_clientSockAddr.sin_addr);
 	_clientSockAddr.sin_family = AF_INET;
 	_clientSockAddr.sin_port = htons(3000);
