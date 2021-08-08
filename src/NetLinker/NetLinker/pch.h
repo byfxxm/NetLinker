@@ -8,8 +8,9 @@
 #include <thread>
 #include <iostream>
 #include <fstream>
-#include <string.h>
+#include <string>
 #include <sys/stat.h>
+#include <cstdlib>
 
 #define BUFFER_SIZE 0x10000
 #define MASK "@#$^&"

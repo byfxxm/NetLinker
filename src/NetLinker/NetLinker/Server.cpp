@@ -77,8 +77,8 @@ void CServer::Listen(int nPort_)
 			{
 				char _buff[BUFFER_SIZE] = { 0 };
 				auto _pPack = new(_buff) Pack();
-				size_t _fileSize = 0;
-				size_t _filePos = 0;
+				unsigned long long _fileSize = 0;
+				unsigned long long _filePos = 0;
 
 				while (true)
 				{
@@ -103,7 +103,7 @@ void CServer::Listen(int nPort_)
 
 						if (memcmp(_pData, FILELEN, FILELEN_SIZE) == 0)
 						{
-							_fileSize = atoi(&_pData[FILELEN_SIZE]);
+							_fileSize = std::stoull(&_pData[FILELEN_SIZE]);
 							continue;
 						}
 
@@ -112,7 +112,7 @@ void CServer::Listen(int nPort_)
 							m_FileOut.write(_pData, _nLen);
 							_filePos += _nLen;
 							if (_fileSize > 0)
-								printf("\r%d%%", int((double)_filePos / _fileSize * 100));
+								printf("\r%llu%%", unsigned long long((double)_filePos / _fileSize * 100));
 
 							continue;
 						}

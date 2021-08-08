@@ -27,7 +27,7 @@ int main()
 			
 			while (true)
 			{
-				Client_SendFile(_pClient, "G:\\Download\\466.47-notebook-win10-64bit-international-dch-whql.exe");
+				Client_SendFile(_pClient, "G:\\movies\\renleiqingchujihua.mp4");
 				getchar();
 			}
 			Client_Delete(_pClient);

@@ -62,7 +62,7 @@ bool CClient::SendFile(const char* pFile_)
 	SendMsg(_str);
 
 	_fin.seekg(0, std::ios::end);
-	sprintf_s(_str, MASK FILELEN "%u", (size_t)_fin.tellg());
+	sprintf_s(_str, MASK FILELEN "%llu", (unsigned long long)_fin.tellg());
 	SendMsg(_str);
 	_fin.seekg(0, std::ios::beg);
 
