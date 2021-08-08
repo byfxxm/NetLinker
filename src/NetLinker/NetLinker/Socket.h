@@ -13,5 +13,4 @@ public:
 
 	bool RecvBytes(SOCKET, char*, int);
 	bool Recv(SOCKET, Pack*);
-	bool RecvFile(SOCKET, Pack*);
 };

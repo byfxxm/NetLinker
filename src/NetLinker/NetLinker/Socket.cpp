@@ -92,8 +92,3 @@ bool CSocket::Recv(SOCKET socket_, Pack* pPack_)
 
 	return true;
 }
-
-bool CSocket::RecvFile(SOCKET socket_, Pack* pPack_)
-{
-	return Recv(socket_, pPack_);
-}

@@ -32,7 +32,7 @@ bool CClient::Connect(const char* pAddr_, int nPort_)
 
 		while (true)
 		{
-			if (!RecvFile(m_Socket, _pPack))
+			if (!Recv(m_Socket, _pPack))
 				return;
 
 			cout << _pPack->Data << endl;
