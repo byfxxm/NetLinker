@@ -7,10 +7,8 @@ public:
 	CSocket();
 	~CSocket();
 
-	bool SendMsg(SOCKET, const char*);
-	bool SendFile(SOCKET, const char*);
-	bool SendBytes(SOCKET, const char*, int);
-
-	bool RecvBytes(SOCKET, char*, int);
+	bool Send(SOCKET, const char*, int);
+	bool Send(SOCKET, Pack*);
+	bool Recv(SOCKET, char*, int);
 	bool Recv(SOCKET, Pack*);
 };

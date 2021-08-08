@@ -43,7 +43,44 @@ bool CClient::Connect(const char* pAddr_, int nPort_)
 	return true;
 }
 
-SOCKET CClient::GetSocket()
+bool CClient::SendMsg(const char* pMsg_)
 {
-	return m_Socket;
+	return Send(m_Socket, pMsg_, strlen(pMsg_) + 1);
+}
+
+bool CClient::SendFile(const char* pFile_)
+{
+	ifstream _fin(pFile_, ios::binary);
+	if (!_fin.is_open())
+		return false;
+
+	char _file[MAX_PATH];
+	strcpy_s(_file, pFile_);
+	char* _name = strrchr(_file, '\\');
+	_name++;
+
+	char _str[1024] = { 0 };
+	sprintf_s(_str, MASK "%s", _name);
+	SendMsg(_str);
+
+	_fin.seekg(0, ios::end);
+	sprintf_s(_str, MASK FILELEN "%llu", (unsigned long long)_fin.tellg());
+	SendMsg(_str);
+	_fin.seekg(0, ios::beg);
+
+	char _buff[BUFFER_SIZE] = { 0 };
+	while (true)
+	{
+		memcpy(_buff, MASK, MASK_SIZE);
+		_fin.read(_buff + MASK_SIZE, sizeof(_buff) - MASK_SIZE - PACKHEAD);
+		Send(m_Socket, _buff, (int)_fin.gcount() + MASK_SIZE);
+
+		if (_fin.eof())
+		{
+			Send(m_Socket, MASK EOFILE, MASK_SIZE + EOFILE_SIZE);
+			break;
+		}
+	}
+
+	return true;
 }

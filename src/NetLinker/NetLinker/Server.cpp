@@ -70,7 +70,8 @@ void CServer::Listen(int nPort_)
 						{
 							_fout.close();
 							printf("\n");
-							SendMsg(_serConn, "finished!");
+							char _finish[] = "finished!";
+							Send(_serConn, _finish, strlen(_finish) + 1);
 							continue;
 						}
 

@@ -8,7 +8,8 @@ public:
 	~CClient();
 
 	bool Connect(const char*, int);
-	SOCKET GetSocket();
+	bool SendMsg(const char*);
+	bool SendFile(const char*);
 
 private:
 	SOCKET m_Socket;
