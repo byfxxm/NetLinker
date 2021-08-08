@@ -61,7 +61,6 @@ bool CSocket::SendFile(SOCKET socket_, const char* pFile_)
 		}
 	}
 
-	//m_Cond.wait(_lck);
 	return true;
 }
 
