@@ -12,6 +12,5 @@ private:
 	SOCKET m_Socket;
 	list<SOCKET> m_listClient;
 	thread m_thdListener;
-	ofstream m_FileOut;
 	char m_szRecFilePath[MAX_PATH];
 };

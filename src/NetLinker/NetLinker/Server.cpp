@@ -50,6 +50,7 @@ void CServer::Listen(int nPort_)
 				auto _pPack = new(_buff) Pack();
 				unsigned long long _fileSize = 0;
 				unsigned long long _filePos = 0;
+				ofstream _fout;
 
 				while (true)
 				{
@@ -67,7 +68,7 @@ void CServer::Listen(int nPort_)
 
 						if (memcmp(_pData, EOFILE, EOFILE_SIZE) == 0)
 						{
-							m_FileOut.close();
+							_fout.close();
 							printf("\n");
 							SendMsg(_serConn, "finished!");
 							continue;
@@ -79,9 +80,9 @@ void CServer::Listen(int nPort_)
 							continue;
 						}
 
-						if (m_FileOut.is_open())
+						if (_fout.is_open())
 						{
-							m_FileOut.write(_pData, _nLen);
+							_fout.write(_pData, _nLen);
 							_filePos += _nLen;
 							if (_fileSize > 0)
 								printf("\r%llu%%", unsigned long long((double)_filePos / _fileSize * 100));
@@ -95,8 +96,8 @@ void CServer::Listen(int nPort_)
 						_fileSize = 0;
 						_filePos = 0;
 
-						while (!m_FileOut.is_open())
-							m_FileOut.open(_filePath, ios::binary);
+						while (!_fout.is_open())
+							_fout.open(_filePath, ios::binary);
 
 						continue;
 					}
