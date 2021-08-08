@@ -58,20 +58,24 @@ bool CClient::SendFile(const char* pFile_)
 	_name++;
 
 	char _str[1024] = { 0 };
-	sprintf_s(_str, MASK"%s", _name);
+	sprintf_s(_str, MASK "%s", _name);
 	SendMsg(_str);
 
+	_fin.seekg(0, std::ios::end);
+	sprintf_s(_str, MASK FILELEN "%u", (size_t)_fin.tellg());
+	SendMsg(_str);
+	_fin.seekg(0, std::ios::beg);
+
 	char _buff[BUFFER_SIZE] = { 0 };
-	int _sum = 0;
 	while (true)
 	{
-		memset(_buff, 0, sizeof(_buff));
-		_fin.read(_buff, sizeof(_buff));
-		SendBytes(_buff, (int)_fin.gcount());
+		memcpy(_buff, MASK, MASK_SIZE);
+		_fin.read(_buff + MASK_SIZE, sizeof(_buff) - MASK_SIZE);
+		SendBytes(_buff, (int)_fin.gcount() + MASK_SIZE);
 
 		if (_fin.eof())
 		{
-			SendBytes(MASK, MASK_SIZE);
+			SendBytes(MASK EOFILE, MASK_SIZE + EOFILE_SIZE);
 			break;
 		}
 	}

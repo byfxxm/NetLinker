@@ -77,6 +77,8 @@ void CServer::Listen(int nPort_)
 			{
 				char _buff[BUFFER_SIZE] = { 0 };
 				auto _pPack = new(_buff) Pack();
+				size_t _fileSize = 0;
+				size_t _filePos = 0;
 
 				while (true)
 				{
@@ -89,28 +91,41 @@ void CServer::Listen(int nPort_)
 
 					if (memcmp(_pPack->Data, MASK, MASK_SIZE) == 0)
 					{
-						if (m_FileOut.is_open())
+						char* _pData = &_pPack->Data[MASK_SIZE];
+						int _nLen = _pPack->nDataLen - MASK_SIZE;
+
+						if (memcmp(_pData, EOFILE, EOFILE_SIZE) == 0)
 						{
 							m_FileOut.close();
-							cout << "receive file finished" << endl;
+							cout << "\nreceive file finished" << endl;
 							continue;
 						}
 
-						cout << "receive file: " << &_pPack->Data[MASK_SIZE] << endl;
-						std::string _filePath(m_szRecFilePath);
-						_filePath += &_pPack->Data[MASK_SIZE];
+						if (memcmp(_pData, FILELEN, FILELEN_SIZE) == 0)
+						{
+							_fileSize = atoi(&_pData[FILELEN_SIZE]);
+							continue;
+						}
 
-						cout << _filePath.c_str() << endl;
+						if (m_FileOut.is_open())
+						{
+							m_FileOut.write(_pData, _nLen);
+							_filePos += _nLen;
+							if (_fileSize > 0)
+								printf("\b\b\b%02d%%", int((double)_filePos / _fileSize * 100));
+								//cout << "\b\b" << (double)_filePos / _fileSize * 100 << "%";
+							continue;
+						}
+
+						cout << "receive file: " << _pData << endl;
+						std::string _filePath(m_szRecFilePath);
+						_filePath += _pData;
+						_fileSize = 0;
+						_filePos = 0;
 
 						while (!m_FileOut.is_open())
 							m_FileOut.open(_filePath, std::ios::binary);
 
-						continue;
-					}
-
-					if (m_FileOut.is_open())
-					{
-						m_FileOut.write(_pPack->Data, _pPack->nDataLen);
 						continue;
 					}
 

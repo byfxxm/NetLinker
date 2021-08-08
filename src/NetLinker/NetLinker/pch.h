@@ -9,7 +9,12 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include <sys/stat.h>
 
-#define BUFFER_SIZE 0x10000
+#define BUFFER_SIZE 0x1000
 #define MASK "@#$^&"
 #define MASK_SIZE 5
+#define EOFILE "eof"
+#define EOFILE_SIZE 3
+#define FILELEN "$$$"
+#define FILELEN_SIZE 3
