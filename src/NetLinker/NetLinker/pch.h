@@ -19,3 +19,5 @@
 #define EOFILE_SIZE 3
 #define FILELEN "$$$"
 #define FILELEN_SIZE 3
+
+using namespace std;

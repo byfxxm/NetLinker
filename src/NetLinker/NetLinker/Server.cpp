@@ -2,8 +2,6 @@
 #include "Server.h"
 #include "Protocol.h"
 
-using namespace std;
-
 CServer::CServer()
 {
 	GetModuleFileName(NULL, m_szRecFilePath, sizeof(m_szRecFilePath));
@@ -58,7 +56,7 @@ void CServer::Listen(int nPort_)
 					if (!Recv(_serConn, _pPack))
 					{
 						closesocket(_serConn);
-						m_listClient.erase(std::find(m_listClient.begin(), m_listClient.end(), _serConn));
+						m_listClient.erase(find(m_listClient.begin(), m_listClient.end(), _serConn));
 						return;
 					}
 
@@ -70,13 +68,14 @@ void CServer::Listen(int nPort_)
 						if (memcmp(_pData, EOFILE, EOFILE_SIZE) == 0)
 						{
 							m_FileOut.close();
-							SendMsg(_serConn, "\nfinished!");
+							printf("\n");
+							SendMsg(_serConn, "finished!");
 							continue;
 						}
 
 						if (memcmp(_pData, FILELEN, FILELEN_SIZE) == 0)
 						{
-							_fileSize = std::stoull(&_pData[FILELEN_SIZE]);
+							_fileSize = stoull(&_pData[FILELEN_SIZE]);
 							continue;
 						}
 
@@ -91,13 +90,13 @@ void CServer::Listen(int nPort_)
 						}
 
 						cout << "receive file: " << _pData << endl;
-						std::string _filePath(m_szRecFilePath);
+						string _filePath(m_szRecFilePath);
 						_filePath += _pData;
 						_fileSize = 0;
 						_filePos = 0;
 
 						while (!m_FileOut.is_open())
-							m_FileOut.open(_filePath, std::ios::binary);
+							m_FileOut.open(_filePath, ios::binary);
 
 						continue;
 					}

@@ -29,8 +29,7 @@ bool CSocket::SendBytes(SOCKET socket_, const char* pBytes_, int nLen_)
 
 bool CSocket::SendFile(SOCKET socket_, const char* pFile_)
 {
-	std::ifstream _fin(pFile_, std::ios::binary);
-
+	ifstream _fin(pFile_, ios::binary);
 	if (!_fin.is_open())
 		return false;
 
@@ -43,10 +42,10 @@ bool CSocket::SendFile(SOCKET socket_, const char* pFile_)
 	sprintf_s(_str, MASK "%s", _name);
 	SendMsg(socket_, _str);
 
-	_fin.seekg(0, std::ios::end);
+	_fin.seekg(0, ios::end);
 	sprintf_s(_str, MASK FILELEN "%llu", (unsigned long long)_fin.tellg());
 	SendMsg(socket_, _str);
-	_fin.seekg(0, std::ios::beg);
+	_fin.seekg(0, ios::beg);
 
 	char _buff[BUFFER_SIZE] = { 0 };
 	while (true)
@@ -62,16 +61,17 @@ bool CSocket::SendFile(SOCKET socket_, const char* pFile_)
 		}
 	}
 
+	//m_Cond.wait(_lck);
 	return true;
 }
 
-bool CSocket::RecvBytes(SOCKET Connect_, char* pBuf_, int nLen_)
+bool CSocket::RecvBytes(SOCKET socket_, char* pBuf_, int nLen_)
 {
 	int _sum = nLen_;
 
 	while (_sum > 0)
 	{
-		int _count = recv(Connect_, pBuf_, _sum, 0);
+		int _count = recv(socket_, pBuf_, _sum, 0);
 		if (SOCKET_ERROR == _count)
 			return false;
 
@@ -82,13 +82,18 @@ bool CSocket::RecvBytes(SOCKET Connect_, char* pBuf_, int nLen_)
 	return _sum == 0;
 }
 
-bool CSocket::Recv(SOCKET Connect_, Pack* pPack_)
+bool CSocket::Recv(SOCKET socket_, Pack* pPack_)
 {
-	if (!RecvBytes(Connect_, (char*)pPack_, PACKHEAD))
+	if (!RecvBytes(socket_, (char*)pPack_, PACKHEAD))
 		return false;
 
-	if (!RecvBytes(Connect_, pPack_->Data, pPack_->nDataLen))
+	if (!RecvBytes(socket_, pPack_->Data, pPack_->nDataLen))
 		return false;
 
 	return true;
+}
+
+bool CSocket::RecvFile(SOCKET socket_, Pack* pPack_)
+{
+	return Recv(socket_, pPack_);
 }

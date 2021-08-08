@@ -46,7 +46,9 @@ int main()
 		cout << "input file path: ";
 		cin >> _s;
 		cout << "copy file..." << endl;
+
 		Client_SendFile(_pClient, _s.c_str());
+		this_thread::sleep_for(chrono::milliseconds(500));
 	}
 
 	Client_Delete(_pClient);
