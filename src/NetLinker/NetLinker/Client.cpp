@@ -49,7 +49,7 @@ bool CClient::SendFile(const char* pFile_)
 {
 	std::ifstream _fin(pFile_, std::ios::binary);
 
-	if (!_fin)
+	if (!_fin.is_open())
 		return false;
 
 	char _file[MAX_PATH];

@@ -156,7 +156,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
-    <ClInclude Include="framework.h" />
     <ClInclude Include="NetLinker.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Protocol.h" />
