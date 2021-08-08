@@ -70,7 +70,7 @@ bool CClient::SendFile(const char* pFile_)
 	while (true)
 	{
 		memcpy(_buff, MASK, MASK_SIZE);
-		_fin.read(_buff + MASK_SIZE, sizeof(_buff) - MASK_SIZE);
+		_fin.read(_buff + MASK_SIZE, sizeof(_buff) - MASK_SIZE - PACKHEAD);
 		SendBytes(_buff, (int)_fin.gcount() + MASK_SIZE);
 
 		if (_fin.eof())
