@@ -97,7 +97,7 @@ void CServer::Listen(int nPort_)
 						if (memcmp(_pData, EOFILE, EOFILE_SIZE) == 0)
 						{
 							m_FileOut.close();
-							cout << "\nreceive file finished" << endl;
+							cout << "\nfinished!" << endl;
 							continue;
 						}
 
@@ -112,8 +112,8 @@ void CServer::Listen(int nPort_)
 							m_FileOut.write(_pData, _nLen);
 							_filePos += _nLen;
 							if (_fileSize > 0)
-								printf("\b\b\b%02d%%", int((double)_filePos / _fileSize * 100));
-								//cout << "\b\b" << (double)_filePos / _fileSize * 100 << "%";
+								printf("\r%d%%", int((double)_filePos / _fileSize * 100));
+
 							continue;
 						}
 

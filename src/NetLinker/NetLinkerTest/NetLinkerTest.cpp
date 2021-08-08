@@ -23,10 +23,7 @@ int main()
 		{
 			void* _pClient = Client_Create();
 			while (!Client_Connect(_pClient, "127.0.0.1", 1234))
-			{
-				cout << "great" << endl;
 				this_thread::yield();
-			}
 			
 			while (true)
 			{
