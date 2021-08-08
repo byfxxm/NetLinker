@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "Client.h"
+#include "Protocol.h"
+
+using namespace std;
 
 CClient::CClient()
 {
@@ -23,6 +26,22 @@ bool CClient::Connect(const char* pAddr_, int nPort_)
 
 	if (SOCKET_ERROR == connect(m_Socket, (SOCKADDR*)&_clientSockAddr, sizeof(SOCKADDR)))
 		return false;
+
+	thread _thd([this]()
+	{
+		char _buff[BUFFER_SIZE] = { 0 };
+		auto _pPack = new(_buff) Pack();
+
+		while (true)
+		{
+			if (!Recv(m_Socket, _pPack))
+				return;
+
+			cout << _pPack->Data << endl;
+		}
+	});
+
+	_thd.detach();
 
 	return true;
 }

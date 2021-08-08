@@ -70,7 +70,7 @@ void CServer::Listen(int nPort_)
 						if (memcmp(_pData, EOFILE, EOFILE_SIZE) == 0)
 						{
 							m_FileOut.close();
-							cout << "\nfinished!" << endl;
+							SendMsg(_serConn, "\nfinished!");
 							continue;
 						}
 
