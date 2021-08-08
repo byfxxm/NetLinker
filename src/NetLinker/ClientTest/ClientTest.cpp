@@ -33,7 +33,13 @@ int main()
 		continue;
 	}
 
-	Client_Connect(_pClient, _socket, atoi(_port));
+	while (!Client_Connect(_pClient, _socket, atoi(_port)))
+	{
+		cout << "error! reinput: ";
+		cin >> _socket;
+	}
+	cout << "connect success!" << endl;
+
 	string _s;
 	while (true)
 	{
