@@ -23,7 +23,7 @@ CServer::~CServer()
 	WSACleanup();
 }
 
-inline bool CServer::Recv(SOCKET Connect_, char* pBuf_, int nLen_)
+bool CServer::Recv(SOCKET Connect_, char* pBuf_, int nLen_)
 {
 	int _sum = nLen_;
 
@@ -40,19 +40,15 @@ inline bool CServer::Recv(SOCKET Connect_, char* pBuf_, int nLen_)
 	return _sum == 0;
 }
 
-Pack* CServer::RecvBytes(SOCKET Connect_)
+bool CServer::RecvBytes(SOCKET Connect_, Pack* pPack_)
 {
-	char _head[PACKHEAD] = { 0 };
-	if (!Recv(Connect_, _head, PACKHEAD))
-		return nullptr;
+	if (!Recv(Connect_, (char*)pPack_, PACKHEAD))
+		return false;
 
-	int _length = *(int*)_head;
-	auto _pack = new(new char[PACKHEAD + _length])Pack(_length);
+	if (!Recv(Connect_, pPack_->Data, pPack_->nDataLen))
+		return false;
 
-	if (!Recv(Connect_, _pack->Data, _pack->nDataLen))
-		return nullptr;
-
-	return _pack;
+	return true;
 }
 
 void CServer::Listen(int nPort_)
@@ -79,12 +75,12 @@ void CServer::Listen(int nPort_)
 
 			thread _connect([this, _serConn]()
 			{
+				char _buff[RECVBUF_SIZE] = { 0 };
+				auto _pPack = new(_buff) Pack();
+
 				while (true)
 				{
-					Pack* _pPack = nullptr;
-					delete _pPack;
-					_pPack = RecvBytes(_serConn);
-					if (_pPack == nullptr)
+					if (!RecvBytes(_serConn, _pPack))
 					{
 						closesocket(_serConn);
 						m_listClient.erase(std::find(m_listClient.begin(), m_listClient.end(), _serConn));
@@ -105,15 +101,9 @@ void CServer::Listen(int nPort_)
 						_filePath += &_pPack->Data[MASK_SIZE];
 
 						cout << _filePath.c_str() << endl;
-						m_FileOut.open(_filePath, std::ios::binary);
 
-						if (!m_FileOut)
-						{
-							cout << "fail to open file" << endl;
-							closesocket(_serConn);
-							m_listClient.erase(std::find(m_listClient.begin(), m_listClient.end(), _serConn));
-							return;
-						}
+						while (!m_FileOut.is_open())
+							m_FileOut.open(_filePath, std::ios::binary);
 
 						continue;
 					}
@@ -124,7 +114,7 @@ void CServer::Listen(int nPort_)
 						continue;
 					}
 
-					//cout << "receive msg: " << _pPack->Data << endl;
+					cout << "receive msg: " << _pPack->Data << endl;
 				}
 			});
 

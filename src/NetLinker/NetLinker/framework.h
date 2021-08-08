@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string.h>
 
-#define BUFFER_SIZE 0x10000
+#define SENDBUF_SIZE 0x10000
+#define RECVBUF_SIZE SENDBUF_SIZE + 0x1000
 #define MASK "#####"
 #define MASK_SIZE 5

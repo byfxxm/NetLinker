@@ -58,11 +58,11 @@ bool CClient::SendFile(const char* pFile_)
 	char* _name = strrchr(_file, '\\');
 	_name++;
 
-	char _str[100] = { 0 };
+	char _str[1024] = { 0 };
 	sprintf_s(_str, MASK"%s", _name);
 	SendMsg(_str);
 
-	char _buff[BUFFER_SIZE] = { 0 };
+	char _buff[SENDBUF_SIZE] = { 0 };
 	int _sum = 0;
 	while (true)
 	{

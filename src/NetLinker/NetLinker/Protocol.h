@@ -3,7 +3,7 @@
 
 struct Pack
 {
-	Pack(int nLen_) : nDataLen(nLen_) {}
+	Pack(int nLen_ = 0) : nDataLen(nLen_) {}
 	int nDataLen;
 	char Data[0];
 };

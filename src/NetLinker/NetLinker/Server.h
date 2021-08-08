@@ -11,7 +11,7 @@ public:
 	~CServer();
 
 	void Listen(int);
-	Pack* RecvBytes(SOCKET);
+	bool RecvBytes(SOCKET, Pack*);
 
 private:
 	bool Recv(SOCKET, char*, int);
