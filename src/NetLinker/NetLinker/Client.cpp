@@ -39,8 +39,7 @@ bool CClient::SendBytes(const char* pBytes_, int nLen_)
 	auto _pPack = new(_pMem) Pack(nLen_);
 	memcpy(_pPack->Data, pBytes_, nLen_);
 
-	int _count = send(m_Socket, _pMem, PACKHEAD + nLen_, 0);
-	bool _bRet = (SOCKET_ERROR != _count);
+	bool _bRet = (SOCKET_ERROR != send(m_Socket, _pMem, PACKHEAD + nLen_, 0));
 	delete[] _pMem;
 
 	return _bRet;
@@ -62,7 +61,7 @@ bool CClient::SendFile(const char* pFile_)
 	sprintf_s(_str, MASK"%s", _name);
 	SendMsg(_str);
 
-	char _buff[SENDBUF_SIZE] = { 0 };
+	char _buff[BUFFER_SIZE] = { 0 };
 	int _sum = 0;
 	while (true)
 	{

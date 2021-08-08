@@ -75,7 +75,7 @@ void CServer::Listen(int nPort_)
 
 			thread _connect([this, _serConn]()
 			{
-				char _buff[RECVBUF_SIZE] = { 0 };
+				char _buff[BUFFER_SIZE] = { 0 };
 				auto _pPack = new(_buff) Pack();
 
 				while (true)
