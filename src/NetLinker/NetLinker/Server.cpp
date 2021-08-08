@@ -23,23 +23,34 @@ CServer::~CServer()
 	WSACleanup();
 }
 
+inline bool CServer::Recv(SOCKET Connect_, char* pBuf_, int nLen_)
+{
+	int _sum = nLen_;
+
+	while (_sum > 0)
+	{
+		int _count = recv(Connect_, pBuf_, _sum, 0);
+		if (SOCKET_ERROR == _count)
+			return false;
+
+		pBuf_ += _count;
+		_sum -= _count;
+	}
+
+	return _sum == 0;
+}
+
 Pack* CServer::RecvBytes(SOCKET Connect_)
 {
-	int _count = 0;
-
 	char _head[PACKHEAD] = { 0 };
-	_count = recv(Connect_, _head, PACKHEAD, 0);
-	if (SOCKET_ERROR == _count)
+	if (!Recv(Connect_, _head, PACKHEAD))
 		return nullptr;
 
 	int _length = *(int*)_head;
 	auto _pack = new(new char[PACKHEAD + _length])Pack(_length);
-	_count = recv(Connect_, _pack->Data, _pack->nDataLen, 0);
-	if (SOCKET_ERROR == _count)
-	{
-		delete _pack;
+
+	if (!Recv(Connect_, _pack->Data, _pack->nDataLen))
 		return nullptr;
-	}
 
 	return _pack;
 }
@@ -92,7 +103,18 @@ void CServer::Listen(int nPort_)
 						cout << "receive file: " << &_pPack->Data[MASK_SIZE] << endl;
 						std::string _filePath(m_szRecFilePath);
 						_filePath += &_pPack->Data[MASK_SIZE];
-						m_FileOut.open(_filePath, std::ios::binary | std::ios::out);
+
+						cout << _filePath.c_str() << endl;
+						m_FileOut.open(_filePath, std::ios::binary);
+
+						if (!m_FileOut)
+						{
+							cout << "fail to open file" << endl;
+							closesocket(_serConn);
+							m_listClient.erase(std::find(m_listClient.begin(), m_listClient.end(), _serConn));
+							return;
+						}
+
 						continue;
 					}
 
@@ -102,7 +124,7 @@ void CServer::Listen(int nPort_)
 						continue;
 					}
 
-					cout << "receive msg: " << _pPack->Data << endl;
+					//cout << "receive msg: " << _pPack->Data << endl;
 				}
 			});
 

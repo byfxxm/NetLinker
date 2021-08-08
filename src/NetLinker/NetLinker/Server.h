@@ -14,6 +14,8 @@ public:
 	Pack* RecvBytes(SOCKET);
 
 private:
+	bool Recv(SOCKET, char*, int);
+
 	SOCKET m_Socket;
 	list<SOCKET> m_listClient;
 	thread m_thdListener;
