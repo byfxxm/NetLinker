@@ -17,7 +17,6 @@ int main()
 	int _nPort = 0;
 	cout << "input port: ";
 	cin >> _nPort;
-	cout << "listening..." << endl;
 	Server_Listen(_pServer, _nPort);
 
 	while (true)

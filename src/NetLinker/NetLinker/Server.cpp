@@ -60,6 +60,7 @@ void CServer::Listen(int nPort_)
 
 	bind(m_Socket, (SOCKADDR*)&_addr, sizeof(SOCKADDR));
 	listen(m_Socket, 10);
+	cout << "listening..." << endl;
 
 	thread _listen([this]()
 	{
@@ -71,6 +72,7 @@ void CServer::Listen(int nPort_)
 			if (_serConn == INVALID_SOCKET)
 				return;
 
+			cout << _serConn << " connected." << endl;
 			m_listClient.push_back(_serConn);
 
 			thread _connect([this, _serConn]()
