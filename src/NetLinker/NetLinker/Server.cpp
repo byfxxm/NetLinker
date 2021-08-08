@@ -2,8 +2,7 @@
 #include "Server.h"
 #include "Protocol.h"
 
-using std::cout;
-using std::endl;
+using namespace std;
 
 CServer::CServer()
 {
@@ -23,34 +22,6 @@ CServer::~CServer()
 	WSACleanup();
 }
 
-bool CServer::Recv(SOCKET Connect_, char* pBuf_, int nLen_)
-{
-	int _sum = nLen_;
-
-	while (_sum > 0)
-	{
-		int _count = recv(Connect_, pBuf_, _sum, 0);
-		if (SOCKET_ERROR == _count)
-			return false;
-
-		pBuf_ += _count;
-		_sum -= _count;
-	}
-
-	return _sum == 0;
-}
-
-bool CServer::RecvBytes(SOCKET Connect_, Pack* pPack_)
-{
-	if (!Recv(Connect_, (char*)pPack_, PACKHEAD))
-		return false;
-
-	if (!Recv(Connect_, pPack_->Data, pPack_->nDataLen))
-		return false;
-
-	return true;
-}
-
 void CServer::Listen(int nPort_)
 {
 	SOCKADDR_IN _addr;
@@ -58,7 +29,7 @@ void CServer::Listen(int nPort_)
 	_addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	_addr.sin_port = htons(nPort_);
 
-	bind(m_Socket, (SOCKADDR*)&_addr, sizeof(SOCKADDR));
+	::bind(m_Socket, (SOCKADDR*)&_addr, sizeof(SOCKADDR));
 	listen(m_Socket, 10);
 	cout << "listening..." << endl;
 
@@ -84,7 +55,7 @@ void CServer::Listen(int nPort_)
 
 				while (true)
 				{
-					if (!RecvBytes(_serConn, _pPack))
+					if (!Recv(_serConn, _pPack))
 					{
 						closesocket(_serConn);
 						m_listClient.erase(std::find(m_listClient.begin(), m_listClient.end(), _serConn));

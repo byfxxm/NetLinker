@@ -1,16 +1,14 @@
 #pragma once
+#include "Socket.h"
 
-struct Pack;
-class CClient
+class CClient : public CSocket
 {
 public:
 	CClient();
 	~CClient();
 
 	bool Connect(const char*, int);
-	bool SendMsg(const char*);
-	bool SendFile(const char*);
-	bool SendBytes(const char*, int);
+	SOCKET GetSocket();
 
 private:
 	SOCKET m_Socket;

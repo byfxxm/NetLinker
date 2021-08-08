@@ -35,10 +35,12 @@ bool Client_Connect(void* pClient_, const char* pAddr_, int nPort_)
 
 bool Client_SendMsg(void* pClient_, const char* pMsg_)
 {
-	return ((CClient*)pClient_)->SendMsg(pMsg_);
+	auto _p = (CClient*)pClient_;
+	return _p->SendMsg(_p->GetSocket(), pMsg_);
 }
 
 bool Client_SendFile(void* pClient_, const char* pFile_)
 {
-	return ((CClient*)pClient_)->SendFile(pFile_);
+	auto _p = (CClient*)pClient_;
+	return _p->SendFile(_p->GetSocket(), pFile_);
 }
