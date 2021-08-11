@@ -86,7 +86,7 @@ void CServer::Listen(int nPort_)
 							_fout.write(_pData, _nLen);
 							_filePos += _nLen;
 							if (_fileSize > 0)
-								printf("\r%llu%%", unsigned long long((double)_filePos / _fileSize * 100));
+								printf("\r%llu%%", (unsigned long long)((double)_filePos / _fileSize * 100));
 
 							continue;
 						}
